@@ -5,9 +5,7 @@ import matplotlib.pyplot as plt
 random.seed(42)
 np.random.seed(42)
 
-# -------------------------
 # ENVIRONMENT SETUP
-# -------------------------
 grid_size = 5
 
 start = (0, 0)
@@ -17,7 +15,7 @@ obstacles = [(0,3), (1,3), (4,0), (4,1)]
 risk_zones = [(1,1), (2,1), (3,2)]
 Q_normal = np.zeros((grid_size, grid_size, 4))
 Q_risk = np.zeros((grid_size, grid_size, 4))
-actions = [0, 1, 2, 3]  # up, down, left, right
+actions = [0, 1, 2, 3] 
 
 # Q-table
 Q = np.zeros((grid_size, grid_size, 4))
@@ -27,9 +25,7 @@ alpha = 0.1
 gamma = 0.9
 episodes = 3000
 
-# -------------------------
 # FUNCTIONS
-# -------------------------
 def get_next_state(state, action):
     x, y = state
     new_x, new_y = x, y
@@ -55,7 +51,7 @@ def get_reward(state, agent_type="normal"):
         return -10
     elif state in risk_zones:
         if agent_type == "risk":
-            return -50   # 🔥 stronger penalty
+            return -50  
         else:
             return -1
     elif state == goal:
@@ -64,12 +60,10 @@ def get_reward(state, agent_type="normal"):
         return -1
 
 
-# -------------------------
 # TRAINING
-# -------------------------
 for ep in range(episodes):
 
-    # -------- NORMAL AGENT --------
+    #NORMAL AGENT
     state = start
     while state != goal:
         x, y = state
@@ -90,7 +84,7 @@ for ep in range(episodes):
 
         state = next_state
 
-    # -------- RISK-AWARE AGENT --------
+    # RISK-AWARE AGENT
     state = start
     while state != goal:
         x, y = state
@@ -135,9 +129,8 @@ path_risk = get_path(Q_risk)
 
 print("Normal Path:", path_normal)
 print("Risk-Aware Path:", path_risk)
-# -------------------------
+
 # VALUE MAP
-# -------------------------
 value_map = np.max(Q_normal, axis=2)
 
 print("\nValue Map:")
@@ -155,9 +148,7 @@ for i in range(grid_size):
 
 plt.show()
 
-# -------------------------
 # GENERALIZATION TEST
-# -------------------------
 print("\n--- GENERALIZATION TEST ---")
 
 # new environment
@@ -169,19 +160,17 @@ path = [state]
 
 steps = 0
 prev_state = None
-Q_test = Q_risk   # or Q_normal
+Q_test = Q_risk  
 while state != goal and steps < 50:
     x, y = state
 
     q_values = Q[x,y].copy()
 
-    # avoid going back
     if prev_state is not None:
         for a in range(4):
             if get_next_state(state, a) == prev_state:
                 q_values[a] -= 100
-
-    # small exploration
+    
     if random.uniform(0,1) < 0.02:
         action = random.randint(0,3)
     else:
@@ -189,7 +178,6 @@ while state != goal and steps < 50:
 
     next_state = get_next_state(state, action)
 
-    # ensure movement
     attempts = 0
     while next_state == state and attempts < 10:
         action = random.randint(0,3)
@@ -204,61 +192,52 @@ while state != goal and steps < 50:
 
 print("Generalization Path:", path)
 
-# -------------------------
 # ANIMATION
-# -------------------------
 from matplotlib.colors import ListedColormap
 
-import imageio  # add this at top of file
+import imageio  
 
 def animate_comparison(path1, path2, obstacles, risk_zones):
     plt.ion()
     fig, ax = plt.subplots()
 
-    frames = []  # 🔥 NEW: store frames
+    frames = [] 
 
     max_len = max(len(path1), len(path2))
 
     for i in range(max_len):
         ax.clear()
 
-        # --- Draw grid background (white)
         ax.set_xlim(-0.5, grid_size-0.5)
         ax.set_ylim(grid_size-0.5, -0.5)
         ax.set_facecolor("white")
 
-        # --- Draw grid lines
         for x in range(grid_size):
             for y in range(grid_size):
                 rect = plt.Rectangle((y-0.5, x-0.5), 1, 1,
                                      fill=False, edgecolor='gray', linewidth=0.5)
                 ax.add_patch(rect)
 
-        # --- Obstacles (BLACK)
         for ox, oy in obstacles:
             rect = plt.Rectangle((oy-0.5, ox-0.5), 1, 1,
                                  color='black')
             ax.add_patch(rect)
 
-        # --- Risk zones (ORANGE with transparency)
         for rx, ry in risk_zones:
             rect = plt.Rectangle((ry-0.5, rx-0.5), 1, 1,
                                  color='orange', alpha=0.5)
             ax.add_patch(rect)
 
-        # --- Goal (GREEN)
         gx, gy = goal
         rect = plt.Rectangle((gy-0.5, gx-0.5), 1, 1,
                              color='green')
         ax.add_patch(rect)
 
-        # --- Agent A (Normal → BLUE CIRCLE)
         if i < len(path1):
             x1, y1 = path1[i]
             circle = plt.Circle((y1, x1), 0.3, color='blue', alpha=0.9)
             ax.add_patch(circle)
 
-        # --- Agent B (Risk-aware → RED SQUARE)
         if i < len(path2):
             x2, y2 = path2[i]
             rect = plt.Rectangle((y2-0.3, x2-0.3), 0.6, 0.6,
@@ -272,14 +251,12 @@ def animate_comparison(path1, path2, obstacles, risk_zones):
         fig.canvas.draw()
         fig.canvas.flush_events()
 
-        # 🔥 NEW: capture frame (backend-safe)
         image = np.array(fig.canvas.renderer.buffer_rgba())
-        image = image[:, :, :3]  # remove alpha
+        image = image[:, :, :3] 
         frames.append(image)
 
         plt.pause(0.5)
 
-    # 🔥 NEW: save GIF (no outputs folder needed)
     imageio.mimsave("animation.gif", frames, fps=2)
 
     plt.ioff()

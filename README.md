@@ -53,15 +53,6 @@ Risk-Aware Path: [(0, 0), (0, 1), (0, 2), (1, 2), (2, 2), (2, 3), (2, 4), (3, 4)
 * Risk-aware agent chooses safer but longer path
 * Learned policy generalizes to new environments
 
-
-##  Generalization-
-[(0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (3, 0), (2, 0), (1, 0), (0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (4, 1), (3, 1), (2, 1), (3, 1), (4, 1), (4, 0), (3, 0), (2, 0), (1, 0), (0, 0), (1, 0), (2, 0), (3, 0), (4, 0), (3, 0), (2, 0), (1, 0), (0, 0), (0, 1), (0, 2), (1, 2), (0, 2), (0, 3), (0, 4), (1, 4), (2, 4), (3, 4), (4, 4)]
-The trained agent is tested on a **new unseen environment**, showing:
-
-* adaptation to new obstacles
-* non-memorized behavior
-
-
 ##  Tech Stack
 
 * Python
